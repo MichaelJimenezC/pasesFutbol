@@ -220,10 +220,13 @@ class Tracker:
             # Draw Team Ball Control
             frame = self.draw_team_ball_control(frame, frame_num, team_ball_control)
             frame_width = frame.shape[1]  # Get the width of the frame
-            text_x = frame_width - 350 
+            frame_height = frame.shape[0]
+            text_x = int(frame_width * 0.63)
+            text_y = int(frame_height * 0.10)
             # Add pass count to frame
-            cv2.putText(frame, f"Team 1 Passes: {team_pass_count[1]}", (text_x, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-            cv2.putText(frame, f"Team 2 Passes: {team_pass_count[2]}", (text_x, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+            cv2.putText(frame, f"Team 1 Passes: {team_pass_count[1]}  Team 2 Passes: {team_pass_count[2]}", 
+            (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+
 
             output_video_frames.append(frame)
 
