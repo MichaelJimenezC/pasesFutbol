@@ -1,0 +1,6 @@
+python -m venv venv
+.\venv\Scripts\actívate Windows o
+source venv/bin/activate macOs
+pip install -r requirements.txt
+python main.py
+la salida es en output_videos
