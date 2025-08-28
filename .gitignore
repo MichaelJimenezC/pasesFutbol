@@ -1,0 +1,37 @@
+# --- Archivos de sistema ---
+.DS_Store
+
+# --- Entornos virtuales ---
+venv*/
+*.venv/
+ENV/
+env/
+venv310/
+venv310tk/
+venv310tk_fixed/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.egg-info/
+*.egg
+
+# --- Videos y salidas ---
+output_videos/
+*.avi
+*.mp4
+*.mov
+*.mkv
+*.gif
+
+# --- Logs y temporales ---
+*.log
+*.tmp
+*.swp
+
+# --- Otros ---
+.idea/
+.vscode/

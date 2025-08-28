@@ -8,11 +8,22 @@ def read_video(video_path):
         if not ret:
             break
         frames.append(frame)
+    cap.release()
     return frames
 
-def save_video(ouput_video_frames,output_video_path):
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    out = cv2.VideoWriter(output_video_path, fourcc, 24, (ouput_video_frames[0].shape[1], ouput_video_frames[0].shape[0]))
-    for frame in ouput_video_frames:
+def save_video(output_video_frames, output_video_path):
+    # Usa 'mp4v' para MP4 o 'XVID' para AVI
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+
+    # Forzar extensión .mp4 si el usuario olvidó
+    if not output_video_path.endswith('.mp4'):
+        output_video_path = output_video_path.rsplit('.', 1)[0] + '.mp4'
+
+    height, width = output_video_frames[0].shape[:2]
+    out = cv2.VideoWriter(output_video_path, fourcc, 24, (width, height))
+
+    for frame in output_video_frames:
         out.write(frame)
+
     out.release()
+    print(f"🎬 Video guardado correctamente en: {output_video_path}")
