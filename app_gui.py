@@ -47,32 +47,32 @@ class VideoPlayer(QWidget):
         self.setWindowTitle("🎥 Comparador de Videos")
         self.setGeometry(100, 100, 1000, 800)
 
-        # Reproductores y widgets de video
+
         self.originalPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
         self.originalVideoWidget = ClickableVideoWidget()
         self.outputPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
         self.outputVideoWidget = ClickableVideoWidget()
 
-        # Permitir loop automático
+
         self.originalPlayer.mediaStatusChanged.connect(self.loop_original)
         self.outputPlayer.mediaStatusChanged.connect(self.loop_output)
 
-        # Botones
+
         self.loadButton = QPushButton("📂 Abrir video original")
         self.processButton = QPushButton("⚙️ Procesar video")
         self.processButton.setEnabled(False)
 
-        # Estado
+
         self.statusLabel = QLabel("")
         self.progressBar = QProgressBar()
         self.progressBar.setRange(0, 0)
         self.progressBar.hide()
 
-        # Conexiones
+
         self.loadButton.clicked.connect(self.load_video)
         self.processButton.clicked.connect(self.process_video)
 
-        # Layout
+
         layout = QVBoxLayout()
         video_layout = QHBoxLayout()
         video_layout.addWidget(self.originalVideoWidget)
@@ -137,6 +137,8 @@ class VideoPlayer(QWidget):
             subprocess.run([
                 "ffmpeg", "-y", "-i", self.output_path,
                 "-c:v", "libx264", "-pix_fmt", "yuv420p",
+                "-preset", "veryfast",
+                "-crf", "18",
                 "-movflags", "+faststart",
                 self.converted_path
             ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
