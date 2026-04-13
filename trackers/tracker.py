@@ -221,7 +221,7 @@ class Tracker:
         box_h = int(0.18 * h)
 
         if anchor == 'tr':
-            x1, y1 = w - box_w - pad, pad
+            x1, y1 = w - box_w - pad, pad + 40 
         elif anchor == 'tl':
             x1, y1 = pad, pad
         elif anchor == 'br':
@@ -311,8 +311,8 @@ class Tracker:
             t1 = (tbc == 1).sum()
             t2 = (tbc == 2).sum()
             denom = max(t1 + t2, 1)
-            txt1 = f"Team 1 Ball: {t1/denom*100:.1f}%"
-            txt2 = f"Team 2 Ball: {t2/denom*100:.1f}%"
+            txt1 = f"Equipo 1 Balon: {t1/denom*100:.1f}%"
+            txt2 = f"Equipo 2 Balon: {t2/denom*100:.1f}%"
 
             counts = pass_counts_timeline[min(frame_num, len(pass_counts_timeline) - 1)]
             p1 = counts.get(1, 0)
@@ -321,8 +321,8 @@ class Tracker:
 
             self._put_text(frame, txt1, (tx, ty), fs)
             self._put_text(frame, txt2, (tx, ty + 30), fs)
-            self._put_text(frame, f"Team 1 Passes: {p1}", (tx, ty + 60), fs)
-            self._put_text(frame, f"Team 2 Passes: {p2}", (tx, ty + 90), fs)
+            self._put_text(frame, f"Equipo 1 Pases: {p1}", (tx, ty + 60), fs)
+            self._put_text(frame, f"Equipo 2 Pases: {p2}", (tx, ty + 90), fs)
 
             output_video_frames.append(frame)
 

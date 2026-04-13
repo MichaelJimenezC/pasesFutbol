@@ -1,3 +1,4 @@
+import shutil
 import sys
 import os
 import subprocess
@@ -9,11 +10,12 @@ from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtMultimediaWidgets import QVideoWidget
 from PyQt5.QtCore import Qt, QUrl, QThread, pyqtSignal, QTimer
 from main import main as run_processing
+import time
 
 
 class ProcessingThread(QThread):
     progress = pyqtSignal(str)
-    done = pyqtSignal()
+    done = pyqtSignal(float)
 
     def __init__(self, input_path, output_path):
         super().__init__()
@@ -21,10 +23,13 @@ class ProcessingThread(QThread):
         self.output_path = output_path
 
     def run(self):
+        start_time = time.time()
         self.progress.emit("🔄 Procesando video...")
         run_processing(self.input_path, self.output_path)
+        end_time = time.time()
+        elapsed = end_time - start_time
         self.progress.emit("✅ Procesamiento finalizado")
-        self.done.emit()
+        self.done.emit(elapsed)
 
 
 class ClickableVideoWidget(QVideoWidget):
@@ -58,10 +63,13 @@ class VideoPlayer(QWidget):
         self.outputPlayer.mediaStatusChanged.connect(self.loop_output)
 
 
-        self.loadButton = QPushButton("📂 Abrir video original")
-        self.processButton = QPushButton("⚙️ Procesar video")
+        self.loadButton = QPushButton("📂 Seleccionar Video")
+        self.processButton = QPushButton("Iniciar Análisis")
         self.processButton.setEnabled(False)
 
+        self.exportButton = QPushButton("📊 Exportar Datos")
+        self.exportButton.setEnabled(False)
+        self.exportButton.clicked.connect(self.export_data)
 
         self.statusLabel = QLabel("")
         self.progressBar = QProgressBar()
@@ -81,6 +89,7 @@ class VideoPlayer(QWidget):
         layout.addLayout(video_layout)
         layout.addWidget(self.loadButton)
         layout.addWidget(self.processButton)
+        layout.addWidget(self.exportButton)
         layout.addWidget(self.progressBar)
         layout.addWidget(self.statusLabel)
         self.setLayout(layout)
@@ -111,14 +120,15 @@ class VideoPlayer(QWidget):
         self.processButton.setEnabled(False)
         self.progressBar.show()
         self.statusLabel.setText("⏳ Procesando...")
+        self.loadButton.setEnabled(False)
 
         self.thread = ProcessingThread(self.input_path, self.output_path)
         self.thread.progress.connect(self.statusLabel.setText)
         self.thread.done.connect(self.on_processing_done)
         self.thread.start()
 
-    def on_processing_done(self):
-        print("✅ Finalizó thread de procesamiento.")
+    def on_processing_done(self,elapsed_time):
+        print(f"✅ Finalizó thread de procesamiento en {elapsed_time:.2f} segundos.")
         self.progressBar.hide()
 
         if not os.path.exists(self.output_path):
@@ -152,6 +162,11 @@ class VideoPlayer(QWidget):
             QTimer.singleShot(300, lambda: self.outputPlayer.setPosition(0))
             QTimer.singleShot(400, self.outputPlayer.play)
             self.statusLabel.setText("🎉 Video procesado y mostrado")
+            self.exportButton.setEnabled(True)
+            self.loadButton.setEnabled(True)
+            minutes = int(elapsed_time // 60)
+            seconds = int(elapsed_time % 60)
+            self.statusLabel.setText(f"✅ Video procesado en {minutes} min {seconds} s")
         except Exception as e:
             print("❌ Error:", e)
             self.statusLabel.setText("❌ Error al reproducir el video.")
@@ -166,6 +181,26 @@ class VideoPlayer(QWidget):
             self.outputPlayer.setPosition(0)
             self.outputPlayer.play()
 
+    def export_data(self):
+        metrics_dir = "output_videos/metrics"
+        if not os.path.exists(metrics_dir):
+            self.statusLabel.setText("⚠️ No se encontraron métricas para exportar.")
+            return
+
+        target_dir = QFileDialog.getExistingDirectory(
+            self, "Seleccionar carpeta de destino", os.getcwd()
+        )
+        if target_dir:
+            for file in os.listdir(metrics_dir):
+                src = os.path.join(metrics_dir, file)
+                dst = os.path.join(target_dir, file)
+                try:
+                    shutil.copy(src, dst)
+                except Exception as e:
+                    print("❌ Error copiando:", e)
+                    self.statusLabel.setText(f"❌ Error exportando {file}")
+                    return
+            self.statusLabel.setText(f"✅ Datos exportados a {target_dir}")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
